@@ -8,6 +8,9 @@
 #define HEIGHT           1000
 #define BACKGROUND_COLOR 255, 255, 255, 255
 
+#define MENU_WIDTH            600
+#define MENU_BACKGROUND_COLOR 217, 217, 217, 255
+
 typedef enum
 {
     Rect = 0
@@ -24,6 +27,10 @@ const size_t COLORS_N = sizeof(COLORS) / sizeof(COLORS[0]);
 
 void render_menu(SDL_Renderer *ren)
 {
+    SDL_Rect background_rect = {.x = 0, .y = 0, .w = MENU_WIDTH, .h = HEIGHT};
+    SDL_SetRenderDrawColor(ren, MENU_BACKGROUND_COLOR);
+    SDL_RenderFillRect(ren, &background_rect);
+
     // TODO: Render the shapes and colors
     // TODO: Click on Shapes or colors and change state
 }
@@ -94,11 +101,6 @@ int main()
         SDL_SetRenderDrawColor(ren, BACKGROUND_COLOR);
         SDL_RenderClear(ren);
 
-        SDL_Rect rect = {.x = 0, .y = 0, .w = 20, .h = 20};
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-        SDL_RenderFillRect(ren, &rect);
-
-        // Render menu
         // NOTE: The menu should be rendered last to appear on top
         if (display_menu == true)
             render_menu(ren);
