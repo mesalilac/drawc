@@ -8,16 +8,13 @@
 #define HEIGHT           1000
 #define BACKGROUND_COLOR 255, 255, 255, 255
 
+#define PADDING 10
+
 #define MENU_WIDTH            WIDTH
 #define MENU_HEIGHT           HEIGHT
 #define MENU_BACKGROUND_COLOR 217, 217, 217, 255
 
 #define COLOR_BLOCK_SIZE 40
-
-typedef enum
-{
-    Rect = 0
-} Shape;
 
 // 2D array that contains all colors
 unsigned char COLORS[][4] = {
@@ -30,23 +27,72 @@ unsigned char COLORS[][4] = {
 // Number of rows in `COLORS` array
 const size_t COLORS_N = sizeof(COLORS) / sizeof(COLORS[0]);
 
-void render_menu(SDL_Renderer *ren, int selected_color)
+#define SHAPE_RECT 0
+
+int SHAPES[] = {SHAPE_RECT};
+
+const size_t SHAPES_N = sizeof(SHAPES) / sizeof(SHAPES[0]);
+
+void render_menu(SDL_Renderer *ren, int *selected_shape, int *selected_color)
 {
+    int mouse_x, mouse_y;
+    Uint32 buttons   = SDL_GetMouseState(&mouse_x, &mouse_y);
+    SDL_Point cursor = {mouse_x, mouse_y};
+
     SDL_Rect background_rect = {
         .x = 0, .y = 0, .w = MENU_WIDTH, .h = MENU_HEIGHT
     };
     SDL_SetRenderDrawColor(ren, MENU_BACKGROUND_COLOR);
     SDL_RenderFillRect(ren, &background_rect);
 
-    int padding = 10; // Padding 10px from the menu
+    int shapes_x = PADDING;
+    int shapes_y = PADDING;
 
-    // TODO: Render the shapes
-    // TODO: change shape on click
+    for (int i = 0; i < SHAPES_N; ++i)
+    {
+        switch (i)
+        {
+            case SHAPE_RECT:
+                if (*selected_shape == SHAPE_RECT)
+                {
+                    SDL_Rect selection_outline_rect = {
+                        .x = shapes_x - 5,
+                        .y = shapes_y - 5,
+                        .w = COLOR_BLOCK_SIZE + 10,
+                        .h = COLOR_BLOCK_SIZE + 10
+                    };
+                    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+                    SDL_RenderFillRect(ren, &selection_outline_rect);
+                }
 
-    // rendering colors section
-    int colors_section_starting_x = padding;
-    // TODO: start COLORS section y from shapes starting y + padding
-    int colors_section_starting_y = 100;
+                SDL_Rect rect_shape = {
+                    .x = shapes_x,
+                    .y = shapes_y,
+                    .w = COLOR_BLOCK_SIZE,
+                    .h = COLOR_BLOCK_SIZE
+                };
+                SDL_SetRenderDrawColor(ren, 200, 80, 80, 255);
+                SDL_RenderFillRect(ren, &rect_shape);
+
+                if (SDL_PointInRect(&cursor, &rect_shape) &&
+                    (buttons & SDL_BUTTON_LMASK) != 0)
+                {
+                    *selected_shape = SHAPE_RECT;
+                }
+                break;
+        }
+
+        shapes_x += PADDING + COLOR_BLOCK_SIZE;
+
+        if ((shapes_x + COLOR_BLOCK_SIZE) >= MENU_WIDTH)
+        {
+            shapes_x = PADDING;
+            shapes_y += PADDING + COLOR_BLOCK_SIZE;
+        }
+    }
+
+    int colors_x = PADDING;
+    int colors_y = shapes_y + COLOR_BLOCK_SIZE * 2 + PADDING;
 
     for (int i = 0; i < COLORS_N; ++i)
     {
@@ -56,21 +102,21 @@ void render_menu(SDL_Renderer *ren, int selected_color)
         unsigned char a = COLORS[i][3];
 
         // Render selection outline
-        if (selected_color == i)
+        if (*selected_color == i)
         {
-            SDL_Rect color_block_selection_outline_rect = {
-                .x = colors_section_starting_x - 5,
-                .y = colors_section_starting_y - 5,
+            SDL_Rect selection_outline_rect = {
+                .x = colors_x - 5,
+                .y = colors_y - 5,
                 .w = COLOR_BLOCK_SIZE + 10,
                 .h = COLOR_BLOCK_SIZE + 10
             };
             SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
-            SDL_RenderFillRect(ren, &color_block_selection_outline_rect);
+            SDL_RenderFillRect(ren, &selection_outline_rect);
         }
 
         SDL_Rect color = {
-            .x = colors_section_starting_x,
-            .y = colors_section_starting_y,
+            .x = colors_x,
+            .y = colors_y,
             .w = COLOR_BLOCK_SIZE,
             .h = COLOR_BLOCK_SIZE
         };
@@ -78,17 +124,19 @@ void render_menu(SDL_Renderer *ren, int selected_color)
         SDL_SetRenderDrawColor(ren, r, g, b, a);
         SDL_RenderFillRect(ren, &color);
 
-        colors_section_starting_x += padding + COLOR_BLOCK_SIZE;
-
-        // NOTE: `colors_section_starting_x + COLOR_BLOCK_SIZE` to prevent color
-        // block from sticking to the edge of the menu
-        if ((colors_section_starting_x + COLOR_BLOCK_SIZE) >= MENU_WIDTH)
+        if (SDL_PointInRect(&cursor, &color) &&
+            (buttons & SDL_BUTTON_LMASK) != 0)
         {
-            colors_section_starting_x = padding;
-            colors_section_starting_y += padding + COLOR_BLOCK_SIZE;
+            *selected_color = i;
         }
 
-        // TODO: change selected_color on click
+        colors_x += PADDING + COLOR_BLOCK_SIZE;
+
+        if ((colors_x + COLOR_BLOCK_SIZE) >= MENU_WIDTH)
+        {
+            colors_x = PADDING;
+            colors_y += PADDING + COLOR_BLOCK_SIZE;
+        }
     }
 }
 
@@ -132,10 +180,10 @@ int main()
         exit(1);
     }
 
-    bool is_running      = true;
-    bool display_menu    = true; // NOTE: set to 'true' for testing
-    int selected_color   = 0;    // Default to use the first color
-    Shape selected_shape = Rect;
+    bool is_running    = true;
+    bool display_menu  = true; // NOTE: set to 'true' for testing
+    int selected_color = 0;
+    int selected_shape = SHAPE_RECT;
     SDL_Event event;
 
     while (is_running)
@@ -154,16 +202,14 @@ int main()
             }
         }
 
-        // ----- Render
         SDL_SetRenderDrawColor(ren, BACKGROUND_COLOR);
         SDL_RenderClear(ren);
 
         // NOTE: The menu should be rendered last to appear on top
         if (display_menu == true)
-            render_menu(ren, selected_color);
+            render_menu(ren, &selected_shape, &selected_color);
 
         SDL_RenderPresent(ren);
-        // Render -----
     }
 
     TTF_CloseFont(font);
