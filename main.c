@@ -255,8 +255,6 @@ int main()
 
                         shapes_list[shapes_list_count] = shape;
                         shapes_list_count += 1;
-
-                        printf("x: %i, y: %i\n", mouse_x, mouse_y);
                     }
                     break;
                 case SDL_MOUSEWHEEL:
