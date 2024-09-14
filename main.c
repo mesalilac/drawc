@@ -217,8 +217,7 @@ int main()
     while (is_running)
     {
         int mouse_x, mouse_y;
-        Uint32 buttons   = SDL_GetMouseState(&mouse_x, &mouse_y);
-        SDL_Point cursor = {mouse_x, mouse_y};
+        SDL_GetMouseState(&mouse_x, &mouse_y);
 
         while (SDL_PollEvent(&event))
         {
