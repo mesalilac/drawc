@@ -24,14 +24,13 @@ unsigned char COLORS[][4] = {
     {178, 35, 182, 255}
 };
 
-// Number of rows in `COLORS` array
-const size_t COLORS_N = sizeof(COLORS) / sizeof(COLORS[0]);
+const int COLORS_N = sizeof(COLORS) / sizeof(COLORS[0]);
 
 #define SHAPE_RECT 0
 
 int SHAPES[] = {SHAPE_RECT};
 
-const size_t SHAPES_N = sizeof(SHAPES) / sizeof(SHAPES[0]);
+const int SHAPES_N = sizeof(SHAPES) / sizeof(SHAPES[0]);
 
 void render_menu(SDL_Renderer *ren, int *selected_shape, int *selected_color)
 {
