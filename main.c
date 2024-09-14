@@ -17,6 +17,11 @@
 
 #define COLOR_BLOCK_SIZE 40
 
+#define RECT_SIZE_INCREAMENT 20
+#define RECT_SIZE_DECREMENT  20
+#define RECT_SIZE_MAX        600
+#define RECT_SIZE_MIN        40
+
 // 2D array that contains all colors
 unsigned char COLORS[][4] = {
     {246, 24,  40,  255},
@@ -199,6 +204,7 @@ int main()
         exit(1);
     }
 
+    int rect_size      = RECT_SIZE_MIN;
     bool is_running    = true;
     bool display_menu  = false;
     int selected_color = 0;
@@ -230,10 +236,10 @@ int main()
                     {
 
                         SDL_Rect rect = {
-                            .x = mouse_x - COLOR_BLOCK_SIZE / 2,
-                            .y = mouse_y - COLOR_BLOCK_SIZE / 2,
-                            .w = COLOR_BLOCK_SIZE,
-                            .h = COLOR_BLOCK_SIZE,
+                            .x = mouse_x - rect_size / 2,
+                            .y = mouse_y - rect_size / 2,
+                            .w = rect_size,
+                            .h = rect_size,
                         };
 
                         Color color = {
@@ -251,6 +257,16 @@ int main()
                         shapes_list_count += 1;
 
                         printf("x: %i, y: %i\n", mouse_x, mouse_y);
+                    }
+                    break;
+                case SDL_MOUSEWHEEL:
+                    if (event.wheel.y == 1 && rect_size < RECT_SIZE_MAX)
+                    {
+                        rect_size += RECT_SIZE_INCREAMENT;
+                    }
+                    else if (event.wheel.y == -1 && rect_size > RECT_SIZE_MIN)
+                    {
+                        rect_size -= RECT_SIZE_DECREMENT;
                     }
                     break;
             }
@@ -277,10 +293,10 @@ int main()
                 SDL_RenderFillRect(ren, &shape->rect);
             }
             SDL_Rect outline = {
-                .x = mouse_x - COLOR_BLOCK_SIZE / 2,
-                .y = mouse_y - COLOR_BLOCK_SIZE / 2,
-                .w = COLOR_BLOCK_SIZE,
-                .h = COLOR_BLOCK_SIZE,
+                .x = mouse_x - rect_size / 2,
+                .y = mouse_y - rect_size / 2,
+                .w = rect_size,
+                .h = rect_size,
             };
 
             SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
