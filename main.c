@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define WIDTH            1200
 #define HEIGHT           1000
@@ -31,6 +32,20 @@ const int COLORS_N = sizeof(COLORS) / sizeof(COLORS[0]);
 int SHAPES[] = {SHAPE_RECT};
 
 const int SHAPES_N = sizeof(SHAPES) / sizeof(SHAPES[0]);
+
+typedef struct
+{
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
+    unsigned char a;
+} Color;
+
+typedef struct
+{
+    SDL_Rect rect;
+    Color color;
+} Shape;
 
 void render_menu(SDL_Renderer *ren, int *selected_shape, int *selected_color)
 {
@@ -180,13 +195,20 @@ int main()
     }
 
     bool is_running    = true;
-    bool display_menu  = true; // NOTE: set to 'true' for testing
+    bool display_menu  = false;
     int selected_color = 0;
     int selected_shape = SHAPE_RECT;
     SDL_Event event;
 
+    Shape **shapes_list   = malloc(30 * sizeof(Shape));
+    int shapes_list_count = 0;
+
     while (is_running)
     {
+        int mouse_x, mouse_y;
+        Uint32 buttons   = SDL_GetMouseState(&mouse_x, &mouse_y);
+        SDL_Point cursor = {mouse_x, mouse_y};
+
         while (SDL_PollEvent(&event))
         {
             switch (event.type)
@@ -198,6 +220,34 @@ int main()
                     if (event.key.keysym.sym == 'm') // Open menu
                         display_menu = !display_menu;
                     break;
+                case SDL_MOUSEBUTTONDOWN:
+                    if (display_menu == false)
+                    {
+
+                        SDL_Rect rect = {
+                            .x = mouse_x - COLOR_BLOCK_SIZE / 2,
+                            .y = mouse_y - COLOR_BLOCK_SIZE / 2,
+                            .w = COLOR_BLOCK_SIZE,
+                            .h = COLOR_BLOCK_SIZE,
+                        };
+
+                        Color color = {
+                            .r = COLORS[selected_color][0],
+                            .g = COLORS[selected_color][1],
+                            .b = COLORS[selected_color][2],
+                            .a = COLORS[selected_color][3]
+                        };
+
+                        Shape *shape = malloc(sizeof(Shape));
+                        shape->rect  = rect;
+                        shape->color = color;
+
+                        shapes_list[shapes_list_count] = shape;
+                        shapes_list_count += 1;
+
+                        printf("x: %i, y: %i\n", mouse_x, mouse_y);
+                    }
+                    break;
             }
         }
 
@@ -207,9 +257,40 @@ int main()
         // NOTE: The menu should be rendered last to appear on top
         if (display_menu == true)
             render_menu(ren, &selected_shape, &selected_color);
+        else
+        {
+            for (int i = 0; i < shapes_list_count; ++i)
+            {
+                Shape *shape = shapes_list[i];
+                SDL_SetRenderDrawColor(
+                    ren,
+                    shape->color.r,
+                    shape->color.g,
+                    shape->color.b,
+                    shape->color.a
+                );
+                SDL_RenderFillRect(ren, &shape->rect);
+            }
+            SDL_Rect outline = {
+                .x = mouse_x - COLOR_BLOCK_SIZE / 2,
+                .y = mouse_y - COLOR_BLOCK_SIZE / 2,
+                .w = COLOR_BLOCK_SIZE,
+                .h = COLOR_BLOCK_SIZE,
+            };
+
+            SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+            SDL_RenderDrawRect(ren, &outline);
+        }
 
         SDL_RenderPresent(ren);
     }
+
+    for (int i = 0; i < shapes_list_count; ++i)
+    {
+        free(shapes_list[i]);
+    }
+
+    free(shapes_list);
 
     TTF_CloseFont(font);
     SDL_DestroyWindow(win);
