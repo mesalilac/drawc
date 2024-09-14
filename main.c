@@ -80,7 +80,7 @@ void render_menu(SDL_Renderer *ren, int *selected_shape, int *selected_color)
                         .w = COLOR_BLOCK_SIZE + 10,
                         .h = COLOR_BLOCK_SIZE + 10
                     };
-                    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
+                    SDL_SetRenderDrawColor(ren, 200, 80, 80, 255);
                     SDL_RenderFillRect(ren, &selection_outline_rect);
                 }
 
@@ -90,7 +90,7 @@ void render_menu(SDL_Renderer *ren, int *selected_shape, int *selected_color)
                     .w = COLOR_BLOCK_SIZE,
                     .h = COLOR_BLOCK_SIZE
                 };
-                SDL_SetRenderDrawColor(ren, 200, 80, 80, 255);
+                SDL_SetRenderDrawColor(ren, 80, 80, 80, 255);
                 SDL_RenderFillRect(ren, &rect_shape);
 
                 if (SDL_PointInRect(&cursor, &rect_shape) &&
