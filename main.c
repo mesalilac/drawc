@@ -19,10 +19,15 @@
 
 // 2D array that contains all colors
 unsigned char COLORS[][4] = {
-    {255, 39, 39,  255},
-    {182, 35, 35,  255},
-    {100, 65, 13,  255},
-    {178, 35, 182, 255}
+    {246, 24,  40,  255},
+    {238, 234, 26,  255},
+    {238, 150, 26,  255},
+    {83,  229, 29,  255},
+    {29,  150, 229, 255},
+    {29,  79,  229, 255},
+    {150, 29,  229, 255},
+    {229, 29,  217, 255},
+    {229, 29,  150, 255},
 };
 
 const int COLORS_N = sizeof(COLORS) / sizeof(COLORS[0]);
@@ -200,7 +205,7 @@ int main()
     int selected_shape = SHAPE_RECT;
     SDL_Event event;
 
-    Shape **shapes_list   = malloc(30 * sizeof(Shape));
+    Shape **shapes_list   = malloc(300 * sizeof(Shape));
     int shapes_list_count = 0;
 
     while (is_running)
