@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define WIDTH            1200
-#define HEIGHT           1000
+#define WIDTH            800
+#define HEIGHT           600
 #define BACKGROUND_COLOR 255, 255, 255, 255
 
 #define PADDING 10
